@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASIRA – بَصِيرَة | Scam Journey Reconstruction Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tesseract.js for robust in-browser OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif; }
+    .cyber-grid {
+      background-image: radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen cyber-grid">
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-sky-400 font-bold text-xl">
+          ب
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-white">BASIRA – بَصِيرَة</h1>
+            <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/30">MVP v2.0 Fully Implemented</span>
+          </div>
+          <p id="tagline" class="text-xs text-slate-400">لا تكتفِ باكتشاف الاحتيال؛ افهم كيف حدث. | Scam Journey Reconstruction Engine</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <label class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs cursor-pointer">
+          <input type="checkbox" id="piiToggle" checked onchange="reRenderAll()" class="accent-sky-400" />
+          <span id="piiLabel">حجب البيانات الحساسة (PII Masking)</span>
+        </label>
+        <button onclick="toggleLang()" id="langBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-sky-300 transition">
+          English (LTR)
+        </button>
+        <button onclick="exportReport()" id="exportBtn" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition">
+          تصدير التقرير (JSON)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+    <div id="advisoryBanner" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-3">
+      <span>⚠️ تنبيه أمني: BASIRA أداة تحليلية مساعدة تعتمد على قواعد قابلة للتدقيق OCR ومعالجة محلية آمنة دون فتح الروابط أو طلب كلمات المرور.</span>
+      <button onclick="clearIncident()" id="clearBtn" class="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 shrink-0">
+        مسح الحادثة
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid lg:grid-cols-12 gap-6">
+    <!-- Left Column: Ingestion & OCR & Scenarios (5 cols) -->
+    <section class="lg:col-span-5 space-y-5">
+      <!-- Demo Scenarios -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <h2 id="demoTitle" class="text-sm font-semibold text-sky-300 mb-3">سيناريوهات اختبار جاهزة (Demo Scenarios)</h2>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="loadScenario('bank')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-start transition">
+            <div class="text-xs font-bold text-rose-400">انتحال مصرفي</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">مكالمة + SMS + رابط</div>
+          </button>
+          <button onclick="loadScenario('job')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-start transition">
+            <div class="text-xs font-bold text-amber-400">وظيفة وهمية</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">رسوم تصريح عمل</div>
+          </button>
+          <button onclick="loadScenario('legit')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-start transition">
+            <div class="text-xs font-bold text-emerald-400">إشعار سليم</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">تحكم سلبي (False Positive)</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Evidence Form -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <h2 id="addEvTitle" class="text-base font-bold text-white">إضافة دليل جديد إلى الحادثة (Incident)</h2>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="typeLbl">نوع الدليل</label>
+            <select id="evType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              <option value="sms">رسالة نصية (SMS / Chat)</option>
+              <option value="call">وصف مكالمة (Phone Call)</option>
+              <option value="url">رابط إلكتروني (URL)</option>
+              <option value="ocr">صورة / لقطة شاشة (Image OCR)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="timeLbl">توقيت الحدث (اختياري)</label>
+            <input type="text" id="evTime" placeholder="مثال: 10:15 AM" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+          </div>
+        </div>
+
+        <!-- OCR Box with Tesseract.js -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-dashed border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-300" id="ocrTitleLbl">استخراج النصوص من الصور (Tesseract OCR):</span>
+            <button type="button" onclick="generateSyntheticScreenshot()" class="text-[11px] text-sky-400 hover:underline">
+              توليد لقطة شاشة تجريبية
+            </button>
+          </div>
+          <input type="file" id="ocrFile" accept="image/*" onchange="runTesseractOCR(event)" class="block w-full text-xs text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30" />
+          <div id="ocrStatus" class="text-[11px] text-slate-400"></div>
+          <canvas id="synthCanvas" width="440" height="100" class="hidden rounded border border-slate-800 w-full"></canvas>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-400 mb-1" id="contentLbl">محتوى الدليل (نص / تفاصيل / رابط)</label>
+          <textarea id="evContent" rows="3" placeholder="أدخل محتوى الرسالة، تفاصيل المكالمة، أو الرابط المشبوه..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea>
+        </div>
+
+        <button onclick="addEvidence()" id="submitBtn" class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition">
+          + إضافة الدليل وتشغيل محرك إعادة بناء الرحلة
+        </button>
+      </div>
+
+      <!-- Evidence List -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-white" id="evListLbl">الأدلة المجمّعة في الحادثة الحاليّة</h3>
+          <span id="evCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+        </div>
+        <div id="evidenceList" class="space-y-2.5 text-xs text-slate-400">
+          لا توجد أدلة مضافة بعد.
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Risk Score, Timeline, Threat Graph (7 cols) -->
+    <section class="lg:col-span-7 space-y-5">
+      <!-- Risk Dashboard & Static URL Inspector Results -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-xs text-slate-400" id="riskTitleLbl">تقييم المخاطر الهجين (Hybrid Auditable Risk Score)</span>
+            <div class="flex items-center gap-3 mt-1">
+              <span id="riskBadge" class="px-3 py-1 rounded-lg text-sm font-bold bg-slate-800 text-slate-300">بانتظار الأدلة</span>
+              <span id="riskScoreNum" class="text-2xl font-extrabold text-white">0 / 100</span>
+            </div>
+          </div>
+          <div class="flex gap-1.5 text-[10px] flex-wrap">
+            <span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Evidence (دليل)</span>
+            <span class="px-2 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">Inference (استنتاج)</span>
+            <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">Hypothesis (فرضية)</span>
+          </div>
+        </div>
+
+        <!-- Rules Breakdown -->
+        <div>
+          <h4 class="text-xs font-semibold text-slate-300 mb-2" id="rulesHeaderLbl">تفصيل القواعد ومؤشرات التهديد المكتشفة:</h4>
+          <div id="rulesBreakdown" class="space-y-1.5 text-xs text-slate-400">
+            لم يتم تفعيل أي قاعدة خطر بعد.
+          </div>
+        </div>
+
+        <!-- Static URL Analysis Findings -->
+        <div id="urlAnalysisBox" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <div class="text-xs font-bold text-amber-400" id="urlAnalysisTitle">نتائج الفحص الساكن للروابط (Static URL Inspector):</div>
+          <div id="urlFindingsList" class="text-xs text-slate-300 space-y-1"></div>
+        </div>
+
+        <!-- Contextual Synthesis -->
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-xs font-semibold text-sky-300 mb-1" id="synthesisTitleLbl">التحليل السياقي والتوصية الوقائية الآمنة:</div>
+          <p id="synthesisText" class="text-xs text-slate-300 leading-relaxed">
+            أضف دليلاً واحداً على الأقل لتبدأ رحلة التحليل.
+          </p>
+        </div>
+      </div>
+
+      <!-- Scam Journey Reconstruction Timeline -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5">
+        <h3 class="text-base font-bold text-white mb-1" id="timelineHeaderLbl">محرك إعادة بناء رحلة الاحتيال (Scam Journey Timeline)</h3>
+        <p class="text-xs text-slate-400 mb-4" id="timelineSubLbl">ترتيب الأحداث زمنياً مع ربط كل استنتاج بدليله المصدري دون اختلاق أوقات مفقودة.</p>
+        <div id="timelineContainer" class="space-y-4">
+          <div class="text-xs text-slate-500 py-6 text-center border border-dashed border-slate-800 rounded-xl">
+            الخط الزمني فارغ حالياً.
+          </div>
+        </div>
+      </div>
+
+      <!-- Threat Relationship Diagram (SVG) -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5">
+        <h3 class="text-sm font-bold text-white mb-2" id="graphHeaderLbl">مخطط علاقات التهديد والأدلة (Threat Relationship Graph)</h3>
+        <div id="graphContainer" class="bg-slate-950 rounded-xl border border-slate-800 p-3 flex items-center justify-center min-h-[150px] text-xs text-slate-500">
+          سيظهر مخطط العلاقات تلقائياً عند إضافة أدلة.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
