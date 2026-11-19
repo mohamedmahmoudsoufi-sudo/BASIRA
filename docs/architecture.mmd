@@ -1,0 +1,19 @@
+flowchart LR
+  A[Analyst input\nURL or message] --> B[Safety gate\nNo passwords / OTP / card data]
+  B --> C[Local parser\nNo network request]
+  C --> D[Explainable signal engine]
+  D --> E[Evidence objects]
+  D --> F[Risk score\nqualified verdict]
+  E --> G[Journey reconstruction\nEvidence / Inference / Hypothesis]
+  G --> H[Timeline + confidence]
+  F --> I[Recommendations]
+  E --> I
+  H --> J[Reviewable demo workspace]
+  I --> J
+
+  classDef safe fill:#10252a,stroke:#6ee7d7,color:#e9f1ef;
+  classDef process fill:#182033,stroke:#aa9cff,color:#e9f1ef;
+  classDef output fill:#2b2116,stroke:#ffc878,color:#e9f1ef;
+  class A,B,C safe;
+  class D,E,F,G,H process;
+  class I,J output;
